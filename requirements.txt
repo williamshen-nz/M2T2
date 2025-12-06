@@ -1,3 +1,4 @@
+fastapi
 h5py
 hydra-core
 matplotlib
@@ -9,3 +10,4 @@ tensorboard
 torch
 torchvision
 trimesh
+uvicorn

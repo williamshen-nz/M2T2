@@ -219,7 +219,7 @@ async def load_model():
     parser.add_argument(
         '--checkpoint',
         type=str,
-        default='m2t2.pth',
+        default='weights/m2t2.pth',
         help='Path to model checkpoint'
     )
     parser.add_argument(
@@ -343,8 +343,8 @@ def main():
     parser.add_argument(
         '--checkpoint',
         type=str,
-        default='m2t2.pth',
-        help='Path to model checkpoint (default: m2t2.pth)'
+        default='weights/m2t2.pth',
+        help='Path to model checkpoint (default: weights/m2t2.pth)'
     )
     parser.add_argument(
         '--config',
