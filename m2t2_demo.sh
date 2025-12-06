@@ -89,6 +89,7 @@ tmux split-window -v -t "${SESSION_NAME}:0.1" -c "${SCRIPT_DIR}"
 
 # Set up the third pane (meshcat-server)
 tmux send-keys -t "${SESSION_NAME}:0.2" "echo -e '${GREEN}Starting meshcat-server...${NC}'" C-m
+tmux send-keys -t "${SESSION_NAME}:0.2" "conda activate ${CONDA_ENV}" C-m
 tmux send-keys -t "${SESSION_NAME}:0.2" "meshcat-server" C-m
 
 # Adjust pane layout for better visibility
@@ -108,3 +109,7 @@ echo -e "${YELLOW}Tip: Use Ctrl+B then D to detach from the session${NC}"
 
 # Attach to the session
 tmux attach-session -t "${SESSION_NAME}"
+
+# Kill the session after detaching
+echo -e "${GREEN}Killing session '${SESSION_NAME}'...${NC}"
+tmux kill-session -t "${SESSION_NAME}"
