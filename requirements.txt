@@ -4,6 +4,7 @@ hydra-core
 matplotlib
 meshcat
 numpy
+requests
 scikit-learn
 scipy
 tensorboard

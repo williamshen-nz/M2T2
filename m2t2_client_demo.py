@@ -1,42 +1,67 @@
 #!/usr/bin/env python3
-"""Client script to predict grasps on a PLY file using the M2T2 server."""
+"""Client script to predict grasps using the M2T2 server."""
 import argparse
 import numpy as np
-import open3d as o3d
+import os
+import pickle
 import requests
 import torch
+from PIL import Image
 
-from m2t2.dataset_utils import denormalize_rgb
+from m2t2.dataset_utils import denormalize_rgb, depth_to_xyz, normalize_rgb
 from m2t2.meshcat_utils import (
     create_visualizer, make_frame, visualize_grasp, visualize_pointcloud
 )
 from m2t2.plot_utils import get_set_colors
 
 
-def load_ply_with_rgb(ply_path):
-    """Load a PLY file and extract XYZ and RGB data using Open3D."""
-    pcd = o3d.io.read_point_cloud(ply_path)
+def load_from_data_dir(data_dir):
+    """Load point cloud from raw data directory (depth.npy, rgb.png format)."""
+    print(f"Loading from data directory: {data_dir}")
 
-    # Extract XYZ coordinates
-    xyz = np.asarray(pcd.points)
+    # Load metadata
+    with open(f'{data_dir}/meta_data.pkl', 'rb') as f:
+        meta_data = pickle.load(f)
 
-    # Extract RGB colors (Open3D returns colors in 0-1 range)
-    if pcd.has_colors():
-        rgb = np.asarray(pcd.colors)
-    else:
-        # Default white color if no RGB data
-        rgb = np.ones_like(xyz)
+    # Load and normalize RGB
+    rgb_img = normalize_rgb(Image.open(f'{data_dir}/rgb.png')).permute(1, 2, 0)
 
-    print(f"Loaded {xyz.shape[0]} points from {ply_path}")
+    # Load depth and convert to XYZ
+    depth = np.load(f'{data_dir}/depth.npy')
+    xyz = torch.from_numpy(
+        depth_to_xyz(depth, meta_data['intrinsics'])
+    ).float()
+
+    # Load segmentation
+    seg = torch.from_numpy(np.array(Image.open(f'{data_dir}/seg.png')))
+    label_map = meta_data['label_map']
+
+    # Filter out invalid depth points
+    valid_mask = depth > 0
+    xyz, rgb_img, seg = xyz[valid_mask], rgb_img[valid_mask], seg[valid_mask]
+
+    # Transform to world coordinates
+    cam_pose = torch.from_numpy(meta_data['camera_pose']).float()
+    xyz_world = xyz @ cam_pose[:3, :3].T + cam_pose[:3, 3]
+
+    # Apply scene bounds if available
+    if 'scene_bounds' in meta_data:
+        bounds = meta_data['scene_bounds']
+        within = (xyz_world[:, 0] > bounds[0]) & (xyz_world[:, 0] < bounds[3]) \
+            & (xyz_world[:, 1] > bounds[1]) & (xyz_world[:, 1] < bounds[4]) \
+            & (xyz_world[:, 2] > bounds[2]) & (xyz_world[:, 2] < bounds[5])
+        xyz_world, rgb_img = xyz_world[within], rgb_img[within]
+
+    xyz = xyz_world.numpy()
+
+    # Denormalize RGB for visualization (0-1 range)
+    rgb_tensor = rgb_img
+    rgb_denorm = denormalize_rgb(rgb_tensor.T.unsqueeze(2)).squeeze(2).T
+    rgb = rgb_denorm.numpy()
+
+    print(f"Loaded {xyz.shape[0]} points from {data_dir}")
 
     return xyz, rgb
-
-
-def normalize_rgb(rgb):
-    """Normalize RGB values."""
-    mean = np.array([0.485, 0.456, 0.406])
-    std = np.array([0.229, 0.224, 0.225])
-    return (rgb - mean) / std
 
 
 def predict_grasps_via_server(
@@ -111,13 +136,9 @@ def visualize_results(xyz, rgb, outputs):
 
     vis = create_visualizer()
 
-    # Prepare RGB for visualization (denormalize)
-    rgb_normalized = normalize_rgb(rgb)
-    rgb_tensor = torch.from_numpy(rgb_normalized).float()
-    rgb_viz = denormalize_rgb(
-        rgb_tensor.T.unsqueeze(2)
-    ).squeeze(2).T
-    rgb_viz = (rgb_viz.numpy() * 255).astype('uint8')
+    # Prepare RGB for visualization (convert to uint8)
+    # RGB is already in 0-1 range from load_from_data_dir
+    rgb_viz = (rgb * 255).astype('uint8')
 
     # Create camera frame
     cam_pose = np.eye(4)
@@ -166,9 +187,11 @@ def main():
         description='Client for M2T2 grasp prediction server'
     )
     parser.add_argument(
-        'ply_path',
+        'data_dir',
         type=str,
-        help='Path to the input PLY file'
+        nargs='?',
+        default='sample_data/real_world/00',
+        help='Path to data directory containing depth.npy and rgb.png (default: sample_data/real_world/00)'
     )
     parser.add_argument(
         '--server-url',
@@ -191,8 +214,8 @@ def main():
     parser.add_argument(
         '--mask-thresh',
         type=float,
-        default=0.2,
-        help='Confidence threshold for predicted grasps (default: 0.2)'
+        default=0.4,
+        help='Confidence threshold for predicted grasps (default: 0.4)'
     )
     parser.add_argument(
         '--no-bounds',
@@ -233,9 +256,14 @@ def main():
     print("=" * 80)
     print()
 
-    # Load PLY file
-    print(f"Loading point cloud from {args.ply_path}...")
-    xyz, rgb = load_ply_with_rgb(args.ply_path)
+    # Load point cloud from data directory
+    if not os.path.isdir(args.data_dir):
+        print(f"ERROR: Data directory not found: {args.data_dir}")
+        print("  Provide a directory containing depth.npy, rgb.png, and meta_data.pkl")
+        return
+
+    print(f"Loading point cloud from data directory: {args.data_dir}...")
+    xyz, rgb = load_from_data_dir(args.data_dir)
 
     # Predict grasps via server
     outputs, num_points_processed = predict_grasps_via_server(
