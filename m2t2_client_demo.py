@@ -196,8 +196,8 @@ def main():
     parser.add_argument(
         '--server-url',
         type=str,
-        default='http://localhost:8000',
-        help='URL of the M2T2 server (default: http://localhost:8000)'
+        default='http://localhost:8123',
+        help='URL of the M2T2 server (default: http://localhost:8123)'
     )
     parser.add_argument(
         '--num-points',
@@ -296,4 +296,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(
