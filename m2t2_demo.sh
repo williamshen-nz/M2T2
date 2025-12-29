@@ -6,7 +6,6 @@ set -e  # Exit on error
 
 # Configuration
 SESSION_NAME="m2t2-demo"
-CONDA_ENV="tiptop-m2t2"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Colors for output
@@ -26,19 +25,14 @@ if ! command -v tmux &> /dev/null; then
     error_exit "tmux is not installed. Please install it first (apt install tmux / brew install tmux)"
 fi
 
-# Check if meshcat-server is available
-if ! command -v meshcat-server &> /dev/null; then
-    error_exit "meshcat-server is not installed. Please install it first (pip install meshcat)"
+# Check if pixi is available
+if ! command -v pixi &> /dev/null; then
+    error_exit "pixi is not installed. Please install it first (curl -fsSL https://pixi.sh/install.sh | bash)"
 fi
 
-# Check if conda is available
-if ! command -v conda &> /dev/null; then
-    error_exit "conda is not installed or not in PATH"
-fi
-
-# Check if the conda environment exists
-if ! conda env list | grep -q "^${CONDA_ENV} "; then
-    error_exit "Conda environment '${CONDA_ENV}' not found. Please create it first."
+# Check if pixi.toml exists
+if [[ ! -f "${SCRIPT_DIR}/pixi.toml" ]]; then
+    error_exit "pixi.toml not found. Please run from the M2T2 directory."
 fi
 
 # Check if required Python files exist
@@ -70,27 +64,24 @@ echo -e "${GREEN}Creating tmux session '${SESSION_NAME}'...${NC}"
 # Create new tmux session (detached) and run client demo in the first pane
 tmux new-session -d -s "${SESSION_NAME}" -c "${SCRIPT_DIR}" || error_exit "Failed to create tmux session"
 
-# Set up the first pane (m2t2_client_demo.py with conda env)
-tmux send-keys -t "${SESSION_NAME}:0.0" "echo -e '${GREEN}Activating conda environment and starting M2T2 client demo...${NC}'" C-m
-tmux send-keys -t "${SESSION_NAME}:0.0" "conda activate ${CONDA_ENV}" C-m
+# Set up the first pane (m2t2_client_demo.py with pixi)
+tmux send-keys -t "${SESSION_NAME}:0.0" "echo -e '${GREEN}Starting M2T2 client demo...${NC}'" C-m
 tmux send-keys -t "${SESSION_NAME}:0.0" "sleep 3 && echo 'Waiting for server to initialize...' && sleep 2" C-m
-tmux send-keys -t "${SESSION_NAME}:0.0" "python m2t2_client_demo.py sample_data/real_world/00" C-m
+tmux send-keys -t "${SESSION_NAME}:0.0" "pixi run python m2t2_client_demo.py sample_data/real_world/00" C-m
 
 # Split window horizontally to create second pane
 tmux split-window -h -t "${SESSION_NAME}:0" -c "${SCRIPT_DIR}"
 
-# Set up the second pane (m2t2_server.py with conda env)
-tmux send-keys -t "${SESSION_NAME}:0.1" "echo -e '${GREEN}Activating conda environment and starting M2T2 server...${NC}'" C-m
-tmux send-keys -t "${SESSION_NAME}:0.1" "conda activate ${CONDA_ENV}" C-m
-tmux send-keys -t "${SESSION_NAME}:0.1" "python m2t2_server.py" C-m
+# Set up the second pane (m2t2_server.py with pixi)
+tmux send-keys -t "${SESSION_NAME}:0.1" "echo -e '${GREEN}Starting M2T2 server...${NC}'" C-m
+tmux send-keys -t "${SESSION_NAME}:0.1" "pixi run python m2t2_server.py" C-m
 
 # Split the second pane vertically to create third pane
 tmux split-window -v -t "${SESSION_NAME}:0.1" -c "${SCRIPT_DIR}"
 
 # Set up the third pane (meshcat-server)
 tmux send-keys -t "${SESSION_NAME}:0.2" "echo -e '${GREEN}Starting meshcat-server...${NC}'" C-m
-tmux send-keys -t "${SESSION_NAME}:0.2" "conda activate ${CONDA_ENV}" C-m
-tmux send-keys -t "${SESSION_NAME}:0.2" "meshcat-server" C-m
+tmux send-keys -t "${SESSION_NAME}:0.2" "pixi run meshcat-server" C-m
 
 # Adjust pane layout for better visibility
 tmux select-layout -t "${SESSION_NAME}:0" main-vertical
@@ -100,9 +91,9 @@ tmux select-pane -t "${SESSION_NAME}:0.0"
 
 echo -e "${GREEN}Session created successfully!${NC}"
 echo -e "Layout:"
-echo -e "  - Pane 0: m2t2_client_demo.py (conda env: ${CONDA_ENV})"
-echo -e "  - Pane 1: m2t2_server.py (conda env: ${CONDA_ENV})"
-echo -e "  - Pane 2: meshcat-server"
+echo -e "  - Pane 0: m2t2_client_demo.py (pixi)"
+echo -e "  - Pane 1: m2t2_server.py (pixi)"
+echo -e "  - Pane 2: meshcat-server (pixi)"
 echo ""
 echo -e "${GREEN}Attaching to session...${NC}"
 echo -e "${YELLOW}Tip: Use Ctrl+B then D to detach from the session${NC}"
