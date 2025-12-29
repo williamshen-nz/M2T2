@@ -1,22 +1,18 @@
 # M2T2: Multi-Task Masked Transformer for Object-centric Pick and Place
-
-**M2T2** is a unified transformer model for learning different low-level action primitives on complex open-world scenes. Given a raw point cloud observation, M2T2 reasons about contact points and predicts collision-free gripper poses for different action modes, including 6-DoF object-centric grasping and orientation-aware placement.
-
-### Links
-- 🌐 [Project Website](https://m2-t2.github.io)
-- 📄 [arXiv Paper](https://arxiv.org/abs/2311.00926)
-- 🔗 [Model Weights](https://huggingface.co/wentao-yuan/m2t2)
-
+### [project website](https://m2-t2.github.io) &emsp; &emsp; [arxiv paper](https://arxiv.org/abs/2311.00926) &emsp; &emsp; [model weights](https://drive.google.com/drive/folders/1qlvHVi1-Jk4ET-NyHwnqZOxALVy9kTO5)
 ![robot](figures/real_robot.gif)
 
-## Quick Start
+This repository is a fork of M2T2. Please see [README_OLD.md](README_OLD.md) for the original README. We have included instructions for installing M2T2 and running it as an inference server.
 
-### Prerequisites
-- [Pixi](https://pixi.sh) package manager
-- NVIDIA GPU with CUDA 12.x drivers
-- `tmux` for running the demo
+## Installation
 
-### Installation
+We use [pixi](https://pixi.prefix.dev/) to manage the Python environment and the dependencies. If you don't already have it installed, then you can run.
+
+```bash
+curl -fsSL https://pixi.sh/install.sh | sh
+```
+
+Then, follow the instructions below to setup M2T2:
 
 ```bash
 # Clone the repository
@@ -25,8 +21,6 @@ cd M2T2
 
 # Install dependencies (this may take a few minutes)
 pixi install
-
-# Build and install M2T2 and PointNet++
 pixi run setup
 
 # Download pretrained weights
@@ -40,51 +34,20 @@ pixi run download-weights
 pixi run demo
 ```
 
-This starts a tmux session with three panes:
-- **Pane 0**: M2T2 client demo
-- **Pane 1**: M2T2 server
-- **Pane 2**: Meshcat visualization server
+Go to Meshcat on http://127.0.0.1:7000/static/ in your browser, and wait to see the grasp predictions. It should look like the figure below.
 
-Open http://127.0.0.1:7000/static/ in your browser to see the grasp predictions.
+<img src="figures/demo.jpg" width="450">
 
 **Tip**: Press `Ctrl+B` then `D` to detach from the tmux session.
 
-## CUDA Compatibility
+## Running the Inference Server
 
-The default configuration uses PyTorch with CUDA 12.1, which works with any CUDA 12.x driver (12.0, 12.1, 12.2, etc.).
+TODO
 
-If you have CUDA 11.x, edit `pixi.toml` and change:
-```toml
-torch = "==2.5.1+cu121"
-torchvision = "==0.20.1+cu121"
-...
-extra-index-urls = ["https://download.pytorch.org/whl/cu121"]
-```
-
-to:
-```toml
-torch = "==2.0.1+cu118"
-torchvision = "==0.15.2+cu118"
-...
-extra-index-urls = ["https://download.pytorch.org/whl/cu118"]
-```
-
-Check your CUDA version with `nvidia-smi`.
-
-## Supported GPUs
-
-M2T2 supports a wide range of NVIDIA GPUs including:
-- RTX 3070, 3080, 3090
-- RTX 4090
-- RTX 5090
-- A6000 series
-- And more
-
-The PointNet++ CUDA extensions will automatically compile for your specific GPU architecture.
 
 ## Citation
 
-If you find our work useful, please cite:
+If you find this work useful, please consider citing the original authors:
 
 ```bibtex
 @inproceedings{yuan2023m2t2,
@@ -94,11 +57,3 @@ If you find our work useful, please cite:
   year      = {2023}
 }
 ```
-
-## Additional Documentation
-
-For detailed training instructions, data format, and advanced usage, see [README_OLD.md](README_OLD.md).
-
-## License
-
-MIT Software License
