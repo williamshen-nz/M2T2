@@ -32,6 +32,9 @@ Next, run the demo script to ensure everything is set up correctly.
 ```bash
 # Run the full demo with meshcat visualization
 pixi run demo
+
+# Or specify which GPU to use
+CUDA_VISIBLE_DEVICES=0 pixi run demo
 ```
 
 Go to Meshcat at http://127.0.0.1:7000/static/ in your browser and wait to see the grasp predictions. It should look like the figure below.
@@ -47,6 +50,9 @@ Make sure you're in the project root directory, then run:
 ```bash
 # Start the server (default: listens on all interfaces at http://0.0.0.0:8123)
 pixi run server
+
+# Specify which GPU to use
+CUDA_VISIBLE_DEVICES=0 pixi run server
 ```
 
 **Other options:**
