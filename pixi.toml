@@ -41,3 +41,6 @@ download-weights = "git clone https://huggingface.co/wentao-yuan/m2t2 weights"
 
 # Run demo (starts meshcat server and runs demo)
 demo = "./m2t2_demo.sh"
+
+# Run inference server
+server = "python m2t2_server.py"

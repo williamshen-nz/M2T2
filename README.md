@@ -42,7 +42,16 @@ Go to Meshcat on http://127.0.0.1:7000/static/ in your browser, and wait to see 
 
 ## Running the Inference Server
 
-TODO
+```bash
+# Start the server (default: http://0.0.0.0:8123)
+pixi run server
+
+# Customize server configuration
+pixi run server -- --port 8080 --checkpoint weights/m2t2.pth
+
+# See all options
+pixi run server -- --help
+```
 
 
 ## Citation
