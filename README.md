@@ -30,7 +30,7 @@ pixi run download-weights
 Next, run the demo script to ensure everything is set up correctly.
 
 ```bash
-# Run the full demo with meshcat visualization
+# Run the full demo with meshcat visualization (runs m2t2_demo.sh)
 pixi run demo
 ```
 
@@ -50,7 +50,8 @@ After you've verified it's working, press `Ctrl+B`, then `D` to detach from the 
 Make sure you're in the project root directory, then run:
 
 ```bash
-# Start the server (default: listens on all interfaces at http://0.0.0.0:8123)
+# Start the server (runs m2t2_server.py)
+# Default: listens on all interfaces at http://0.0.0.0:8123
 pixi run server
 ```
 
