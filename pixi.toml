@@ -40,7 +40,7 @@ meshcat = "*"
 setup = { cmd = "pip install pointnet2_ops/ --no-build-isolation && pip install -e .", env = { CUDA_HOME = "$CONDA_PREFIX", LD_LIBRARY_PATH = "$CONDA_PREFIX/lib:$LD_LIBRARY_PATH" } }
 
 # Download model weights
-download-weights = "git clone https://huggingface.co/wentao-yuan/m2t2 weights && echo '1f8354df8e7f7be10c5edc05cba937a4  weights/m2t2.pth' | md5sum -c - || (echo 'ERROR: Checksum verification failed for weights/m2t2.pth' && exit 1)"
+download-weights = "GIT_LFS_SKIP_SMUDGE=1 git clone https://huggingface.co/wentao-yuan/m2t2 weights && cd weights && git lfs pull && cd .. && echo '1f8354df8e7f7be10c5edc05cba937a4  weights/m2t2.pth' | md5sum -c - || (echo 'ERROR: Checksum verification failed for weights/m2t2.pth' && exit 1)"
 
 # Run demo (starts meshcat server and runs demo)
 demo = "./m2t2_demo.sh"
