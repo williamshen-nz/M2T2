@@ -12,7 +12,9 @@ We use [pixi](https://pixi.prefix.dev/) to manage the Python environment and dep
 curl -fsSL https://pixi.sh/install.sh | sh
 ```
 
-Then, follow the instructions below to set up M2T2:
+Then restart or source your shell.
+
+Once you have pixi installed, follow the instructions below to set up M2T2:
 
 ```bash
 # Clone the repository
