@@ -15,6 +15,7 @@ gcc = "12.*"
 gxx = "12.*"
 cuda-toolkit = "12.*"
 ninja = "*"
+git-lfs = "*"
 pytorch-gpu = "*"
 torchvision = "*"
 
