@@ -6,6 +6,11 @@ This repository is a fork of M2T2. Please see [README_OLD.md](README_OLD.md) for
 
 ## Installation
 
+**Prerequisites**:
+
+- NVIDIA GPU (tested on RTX 3080, 3090, 4090, 5090)
+- Linux (tested on Ubuntu)
+
 We use [pixi](https://pixi.prefix.dev/) to manage the Python environment and dependencies. If you don't already have it installed, you can run:
 
 ```bash
