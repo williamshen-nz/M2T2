@@ -27,7 +27,6 @@ git clone https://github.com/williamshen-nz/M2T2.git
 cd M2T2
 
 # Install dependencies (this may take a few minutes)
-pixi install
 pixi run setup
 
 # Download pretrained weights
