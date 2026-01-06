@@ -14,6 +14,7 @@ pip = "*"
 gcc = "12.*"
 gxx = "12.*"
 cuda-toolkit = "12.*"
+ninja = "*"
 pytorch-gpu = "*"
 torchvision = "*"
 
