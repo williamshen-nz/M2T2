@@ -5,11 +5,17 @@ description = "Multi-Task Masked Transformer for Object-centric Pick and Place"
 channels = ["conda-forge"]
 platforms = ["linux-64"]
 
+[system-requirements]
+cuda = "12.1"
+
 [dependencies]
 python = "3.10.*"
 pip = "*"
 gcc = "12.*"
 gxx = "12.*"
+cuda-toolkit = "12.*"
+pytorch-gpu = "*"
+torchvision = "*"
 
 # Python dependencies from requirements.txt
 fastapi = "*"
@@ -25,12 +31,7 @@ trimesh = "*"
 uvicorn = "*"
 
 [pypi-dependencies]
-torch = "==2.5.1+cu121"
-torchvision = "==0.20.1+cu121"
 meshcat = "*"
-
-[pypi-options]
-extra-index-urls = ["https://download.pytorch.org/whl/cu121"]
 
 [tasks]
 # Install local packages (run after pixi install)
